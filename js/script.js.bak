@@ -1,0 +1,174 @@
+(function($){
+	$('.chosen-select').chosen({
+		disable_search_threshold: 1,
+		max_selected_options: 10,
+		no_results_text: "Oops, nothing found!",
+	});
+
+})(jQuery);
+
+$(document).ready(function() {
+
+	// Get Printing Size Width (H)
+	// Convert Print Size Width to Inches (J)
+	// MM to Inch
+	$(document.body).delegate('#prnt_size_w_mm', 'keyup blur update change', function(e) {
+		$value = $('#prnt_size_w_mm').val()/25.4;
+		$('#prnt_size_w_in').val( $value.toFixed(2) ); // (J)
+	});
+
+	// Get Printing Size Length (I)
+	// Convert Print Size length (K)
+	// MM to Inch
+	// Update Total media use for printing length + 2 (Y)
+	// Update Total media use for printing length in Feet (AF)
+	// Set Total media wastage Height as Print Size length (AI)
+	$(document.body).delegate('#prnt_size_l_mm', 'keyup blur update change', function(e) {
+		$value = $('#prnt_size_l_mm').val()/25.4;
+		$('#prnt_size_l_in').val( $value.toFixed(2) ); // (K)
+		$('#total_media_waste_h').val( $value.toFixed(2) ); // (AI)
+
+
+
+		// Total media use for printing Length in Inches
+		//$('#media_used_l_in').val( ($value+2).toFixed(2) ); // (Y)
+
+		// Total media use for printing Length in Feet
+		//$('#total_media_l_ft').val( (($value+2)/12).toFixed(2) ); // (AF)
+	});
+
+	//  Get Print Size Length (I)
+	//  Convert Print SQ FT (L)
+	//  Inch to Sq FT
+	/*$(document.body).delegate('#prnt_size_l_mm', 'keyup blur update change', function(e) {
+		$value = ( $('#prnt_size_w_in').val() * $('#prnt_size_l_in').val() ) / 144 ;
+		$('#prnt_size_sqft').val( $value.toFixed(2) ); // (L)
+	});*/
+	$(document.body).delegate('#prnt_size_w_in, #prnt_size_l_in', 'keyup blur update change', function(e) {
+		$value = ( $('#prnt_size_w_in').val() * $('#prnt_size_l_in').val() ) / 144 ;
+		$('#prnt_size_sqft').val( $value.toFixed(2) ); // (L)
+
+		$('#total_media_waste_h').val( ( $('#prnt_size_l_in').val() * $('#no_copies') ) / 144 );
+	});
+
+
+	// Get Number of Copies (M)
+	// Get Print size in Sq Ft (L)
+	// Update Total Print in Sq Ft (M * L) = (N)
+	$(document.body).delegate('#no_copies', 'keyup blur update change', function(e) {
+		$value = ( $('#prnt_size_sqft').val() * $('#no_copies').val() );
+		$('#total_print_sqft').val( $value.toFixed(2) ); // (N)
+	});
+
+	// Get wastage size Width (O)
+	// Get wastage size Length (P)
+	// mm to Inch to Sq Ft (S)
+	$(document.body).delegate('#waste_size_w_mm, #waste_size_l_mm', 'keyup blur update change', function(e) {
+		$value = ( ( $(this).val() / 25.4 ) * ( $('#waste_size_l_mm').val() / 25.4 ) / 144 );
+		$('#total_waste_sqft').val( $value.toFixed(2) ); // (S)
+	});
+
+	// Get Total Media Used Width (X)
+	// Update Total Media Used Width (AE)
+	// Inch to Ft
+	// ---------------
+	// Get Total Media Used Width (X)
+	// Get Total media use for printing Length in Inches (Y)
+	// Get Number of Copies (M)
+	// Update MEDIA TOTAL USE SQ FT (AG)
+	// ----------------
+	// Get Total Media Used Width (X)
+	// Print Size Width to Inches (J)
+	// Update Total media wastage Width (AH)
+	// ----------------
+	// Get Total media use for printing Length in Inches (Y)
+	// Get Print Size length (K)
+	// Get Total Media Used Width (X)
+	// ((Y-K)*X)
+	// Update Total media wastage Bottom (AJ)
+	// -----------------
+	// Get Total media wastage Height (AI)
+	// Get Total media wastage Width (AH)
+	// Get Total media wastage Bottom (AJ)
+	// Get Number of Copies (M)
+	// (((AI*AH)+AJ)/144)*M
+	// Update MEDIA Total Wastage in SQ FT (AK)
+	$(document.body).delegate('#media_used_w_in', 'keyup blur update change', function(e) {
+		// Update Total Media Used Width (AE)
+		$value = $(this).val() / 12 ;
+		$('#total_media_w_ft').val( $value.toFixed(2) ); // (AE)
+
+		// Update MEDIA TOTAL USE SQ FT (AG)
+		$ag = ( ($('#media_used_w_in').val() * $('#media_used_l_in').val() ) / 144 ) * $('#no_copies').val();
+		$('#total_media_used_sqft').val( ( $('#media_used_w_in').val() * $('#media_used_l_in').val() / 144 ).toFixed(2) ); // (AG)
+
+		// Update Total media wastage Width (AH)
+		$ah = $('#media_used_w_in').val() - $('#prnt_size_w_in').val()
+		$('#total_media_waste_w').val(	 $ah.toFixed(2) ); // (AH)
+
+		// Update Total media wastage Bottom (AJ)
+		$aj = ($('#media_used_l_in').val() - $('#prnt_size_l_in').val() ) * $('#media_used_w_in').val();
+		$('#total_media_waste_b').val( $aj.toFixed(2) ); // (AJ)
+
+		// Update MEDIA Total Wastage in SQ FT (AK)
+		$ai = $('#total_media_waste_h').val();
+		$ak = ( ( ($ai * $ah) + $aj ) / 144 ) * $('#no_copies').val();
+		$('#total_media_wastage_sqft').val( $ak.toFixed(2) ); // (AK)
+	});
+
+	$(document.body).delegate('#media_used_l_in', 'keyup blur update change', function(e) {
+		$('#total_media_l_ft').val( (($('#media_used_l_in').val())/12).toFixed(2) );
+
+		// Update MEDIA TOTAL USE SQ FT (AG)
+		$ag = ( $('#media_used_w_in').val() * $('#media_used_l_in').val() / 144 ) * $('#no_copies').val();
+		$('#total_media_used_sqft').val( ( $('#media_used_w_in').val() * $('#media_used_l_in').val() / 144 ).toFixed(2) ); // (AG)
+
+		$aj = ($('#media_used_l_in').val() - $('#prnt_size_l_in').val() ) * $('#media_used_w_in').val();
+		$('#total_media_waste_b').val( $aj.toFixed(2) ); // (AJ)
+	});
+
+
+
+
+
+
+
+
+	// Get Ink used as per RTL (BA)
+	// Get Number of Copies (M)
+	// BA * M
+	// Update Total Ink Used in ML (BB)
+	$(document.body).delegate('#ink_used_rtl', 'keyup blur update change', function(e) {
+		$value = $(this).val() * $('#no_copies').val();
+		$('#total_ink_used').val( $value.toFixed(1) ); // (BB)
+	});
+
+	// Get Print Time (BC)
+	// Get Number of Copies (M)
+	// BC * M
+	// Update Total Print Time (BD)
+	$(document.body).delegate('#prnt_time', 'keyup blur update change', function(e) {
+		$value = $(this).val() * $('#no_copies').val();
+		$('#total_prnt_time').val( $value ); // BD
+	});
+
+	$('#job_date').datepicker({
+		language: 'en',
+		todayButton: true,
+		clearButton: true,
+		today: 'Today',
+		clear: 'Clear',
+		dateFormat: 'dd/mm/yyyy',
+		firstDay: 0,
+		position: 'bottom left',
+	});
+
+	 $('#job_start_time').timepicker('showWidget');
+	 $('#job_end_time').timepicker();
+
+
+
+
+
+
+});
